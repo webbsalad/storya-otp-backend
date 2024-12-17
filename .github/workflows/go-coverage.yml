@@ -19,7 +19,7 @@ jobs:
           go-version: stable
 
       - name: Run tests with coverage
-        run: go test -cover -coverprofile=coverage.out ./internal/api/passport/... ./internal/service/passport/v1/...
+        run: go test -cover -coverprofile=coverage.out ./internal/api/otp/... ./internal/service/otp/v1/...
 
       - name: Calculate coverage percentage
         id: calculate-coverage
