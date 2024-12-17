@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package otp;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/webbsalad/storya-otp-backend/otp;otp";
+
+service OtpService {
+    rpc SendOtp(SendOtpRequest) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            post: "/send-otp",
+            body: "*"
+        };
+    
+    };
+
+    rpc ConfirmOtp(ConfirmOtpRequest) returns (ConfirmOtpResponse){
+        option (google.api.http) = {
+            post: "/confirm-otp",
+            body: "*"
+        };
+    };
+}
+
+message SendOtpRequest {
+    string email = 1 [(validate.rules).string.email = true];
+  }
+
+message ConfirmOtpRequest { 
+    string email = 1 [(validate.rules).string.email = true]; 
+    string otp_code = 2;
+}
+
+message ConfirmOtpResponse {
+    string email_id = 1 [(validate.rules).string.uuid = true];
+}
