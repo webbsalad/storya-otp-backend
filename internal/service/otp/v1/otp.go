@@ -14,7 +14,7 @@ func generateOtpKey(email string) (string, error) {
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("generate otps: %w", err)
+		return "", fmt.Errorf("generate otp key: %w", err)
 	}
 
 	return string(otpKey.Secret()), nil
