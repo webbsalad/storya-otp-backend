@@ -49,19 +49,19 @@ func (r *Repository) GetOtpKey(ctx context.Context, email string) (string, error
 }
 
 func (r *Repository) StoreOtpKey(ctx context.Context, email, otpKey string) (string, error) {
+	var storedKey string
+
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	query := psql.
 		Insert("otp_keys").
 		Columns("email", "otp_key").
 		Values(email, otpKey).
-		Suffix("ON CONFLICT (email) DO NOTHING RETURNING id")
+		Suffix("ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id")
 
 	q, args, err := query.ToSql()
 	if err != nil {
 		return "", fmt.Errorf("build query: %w", err)
 	}
-
-	var storedKey string
 
 	if err = r.db.QueryRowContext(ctx, q, args...).Scan(&storedKey); err != nil {
 
@@ -74,4 +74,32 @@ func (r *Repository) StoreOtpKey(ctx context.Context, email, otpKey string) (str
 	}
 
 	return otpKey, nil
+}
+
+func (r *Repository) ConfirmEmail(ctx context.Context, email string) (model.EmailID, error) {
+	var storedEmailID string
+
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query := psql.
+		Insert("confirmed_emails").
+		Columns("email").
+		Values(email).
+		Suffix("ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id")
+
+	q, args, err := query.ToSql()
+	if err != nil {
+		return model.EmailID{}, fmt.Errorf("build query: %w", err)
+	}
+
+	if err = r.db.QueryRowContext(ctx, q, args...).Scan(&storedEmailID); err != nil {
+		return model.EmailID{}, fmt.Errorf("execute query: %w", err)
+	}
+
+	emailID, err := model.EmailIDFromString(storedEmailID)
+	if err != nil {
+		return model.EmailID{}, fmt.Errorf("convert str to email id: %w", err)
+	}
+
+	return emailID, nil
+
 }
