@@ -2,6 +2,9 @@ PROTO_SRC_DIR := ./api/otp
 PROTO_OUT_DIR := ./internal/pb
 VENDOR_DIR := ./vendor.protogen
 
+include .env
+export $(shell sed 's/=.*//g' .env)
+
 PROTOC_FLAGS := \
 	-I . \
 	-I $(VENDOR_DIR) \
@@ -37,3 +40,9 @@ quality:
 	go test -cover -coverprofile=coverage.out ./... 
 	#go tool cover -func=coverage.out 
 	golangci-lint run 
+
+migrate-up:
+	cd migrations && goose postgres $(DSN) up
+
+migrate-down:
+	cd migrations && goose postgres $(DSN) down
