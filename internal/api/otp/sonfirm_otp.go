@@ -7,17 +7,19 @@ import (
 	"github.com/webbsalad/storya-otp-backend/internal/pb/github.com/webbsalad/storya-otp-backend/otp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (i *Implementation) SendOtp(ctx context.Context, req *otp.SendOtpRequest) (*emptypb.Empty, error) {
+func (i *Implementation) ConfirmOtp(ctx context.Context, req *otp.ConfirmOtpRequest) (*otp.ConfirmOtpResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid request: %v", err)
 	}
 
-	if err := i.OtpService.SendOtp(ctx, req.GetEmail()); err != nil {
+	emailID, err := i.OtpService.ConfirmOtp(ctx, req.GetEmail(), req.GetOtpCode())
+	if err != nil {
 		return nil, convertor.ConvertError(err)
 	}
 
-	return &emptypb.Empty{}, nil
+	return &otp.ConfirmOtpResponse{
+		EmailId: emailID.String(),
+	}, nil
 }
