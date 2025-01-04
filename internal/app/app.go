@@ -4,7 +4,8 @@ import (
 	"github.com/webbsalad/storya-otp-backend/internal/api/otp"
 	"github.com/webbsalad/storya-otp-backend/internal/config"
 	pb "github.com/webbsalad/storya-otp-backend/internal/pb/github.com/webbsalad/storya-otp-backend/otp"
-	"github.com/webbsalad/storya-otp-backend/internal/repository/otp/pg"
+	mail_repository "github.com/webbsalad/storya-otp-backend/internal/repository/mail/api"
+	otp_repository "github.com/webbsalad/storya-otp-backend/internal/repository/otp/pg"
 
 	v1 "github.com/webbsalad/storya-otp-backend/internal/service/otp/v1"
 	"go.uber.org/fx"
@@ -25,7 +26,8 @@ func serviceOptions() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			otp.NewImplementation,
-			pg.NewRepository,
+			otp_repository.NewRepository,
+			mail_repository.NewRepository,
 			v1.NewService,
 		),
 		fx.Invoke(
