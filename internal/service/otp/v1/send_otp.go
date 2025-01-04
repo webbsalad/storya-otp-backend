@@ -29,7 +29,7 @@ func (s *Service) SendOtp(ctx context.Context, email string) error {
 		return fmt.Errorf("otp code: %w", err)
 	}
 
-	if err = sendMail(email, otpCode); err != nil {
+	if err = s.mailRepository.SendMail(ctx, email, otpCode); err != nil {
 		return fmt.Errorf("sending email: %w", err)
 	}
 
